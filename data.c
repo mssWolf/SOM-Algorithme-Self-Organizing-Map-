@@ -84,14 +84,41 @@ void shuffle_array(int * data_array_index,int number_line_file)
 	}
 
 }
-void parser (data * array_data)
+
+/** function to calculate norm of a vector of size (number_column_double_file) */
+double calcul_norm (double * vector,int number_column_double_file)
+{
+	double norm = 0.0;
+	for(int i =	0;i<number_column_double_file;i++)
+		norm+= pow(vector[i],2.0);
+	
+	return sqrt(norm);
+}
+
+/*  x[i]/norm for every vector in the data array */
+void vector_normalisation(data * data_value,int number_column_double_file)
+{
+	for(int i=0;i<number_column_double_file;i++)
+		data_value->vector[i]=data_value->vector[i]/data_value->norm;
+}
+/*function to calculate the average vector of the Iris dataser 
+void average_vector(data * array_data,fileConf * file_conf)
+{
+	for(int i=0;i<file_conf->number_column_double_file;i++)
+	{
+		for (int j = 0; j < file_conf->number_line_file; j++)
+		{
+			file_conf->vector[i]+=array_data[j].vector[i];
+		}
+		file_conf->vector[i]=file_conf->vector[i]/file_conf->number_line_file;
+	}
+}*/
+void parser (data * array_data,fileConf * file_conf)
 {
 	/*****************************************/
 	// DECLARATION in relation with the file structure
 	/****************************************/
 	FILE * file =	NULL;
-	int number_line_file;
-	int number_column_double_file;
 
 	/*****************************************/
 	// DECLARATION in relation with reading file
@@ -109,17 +136,13 @@ void parser (data * array_data)
 		exit(0);
 	}
 
-	number_line_file = count_number_line_file(file); //  get number of line in the file 
-	fseek(file,0, SEEK_SET); // rewind the file to the start
-	number_column_double_file =	count_number_column_file(file)-1; // get number of column in the file 
-	fseek(file,0, SEEK_SET);
 	/**********************************************************************/
 	/*  reading from the file line by line and then stock in array_data	  */
 	/**********************************************************************/
 	while(getline(&file_line, &line_buf_size, file)	!=	-1)
 		{
 			token	=	strtok(file_line,",");
-			for(int i=0;i<number_column_double_file;i++)
+			for(int i=0;i<file_conf->number_column_double_file;i++)
 			{
 				
 				//printf("%lf\t",strtod(token,&endPtr));
@@ -129,10 +152,21 @@ void parser (data * array_data)
 			token = strtok(token,"\n");
 			//printf("%s\n",token);
 			strcpy(array_data[line_read_file].name,token);
-
+			array_data[line_read_file].norm = calcul_norm (array_data[line_read_file].vector,file_conf->number_column_double_file);
+			vector_normalisation(&array_data[line_read_file],file_conf->number_column_double_file);
+			/************calculating the average vector of the iris database ******/
+			// in here adding the normalised vectors
+			for(int i=0;i<file_conf->number_column_double_file;i++)
+				file_conf->vector[i]+=array_data[line_read_file].vector[i];
+			file_conf->norm+=array_data[line_read_file].norm;
+			/**********************************************************************/
 			line_read_file ++;// to know witch line i'm reading in file
 		}
-
+		/************calculating the average vector of the iris database ******/
+		/************** in here spliting by  the number of vectors to get the average *********/
+		for(int i=0;i<file_conf->number_column_double_file;i++)
+			file_conf->vector[i]=file_conf->vector[i]/file_conf->number_line_file;
+		file_conf->norm=file_conf->norm/file_conf->number_line_file;
   	file_line = NULL;
 	fclose(file);
 }
