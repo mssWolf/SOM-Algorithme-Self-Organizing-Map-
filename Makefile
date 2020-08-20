@@ -9,7 +9,7 @@ PROGNAME = som
 VERSION = 1.0
 distdir = $(PROGNAME)-$(VERSION)
 #HEADERS = 
-SOURCES = data.c main.c
+SOURCES = data.c neuron.c main.c
 OBJ = $(SOURCES:.c=.o)
 all: $(PROGNAME)
 $(PROGNAME): $(OBJ)
