@@ -18,8 +18,7 @@ typedef	struct fileConf
 {
 	int number_line_file;
 	int number_column_double_file;
-	double * vector;
-	double norm;
+	double * vector;// average vector of the database vectors
 }fileConf;
 
 int count_number_column_file(FILE * file);
